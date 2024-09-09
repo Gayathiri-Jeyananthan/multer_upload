@@ -1,33 +1,31 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
+const cors = require('cors'); // Import CORS
 
 // Initialize express app
 const app = express();
 
+// Use CORS middleware
+app.use(cors()); // Enable CORS for all routes
+
 // Set up storage for Multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Directory where files will be saved
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Name the file uniquely
+    cb(null, Date.now() + '-' + file.originalname);
   },
 });
 
-// Initialize Multer with the storage config
 const upload = multer({ storage: storage });
 
-// Middleware to serve static files
-app.use(express.static('public'));
-
-// File upload route
 app.post('/upload', upload.single('file'), (req, res) => {
   try {
     res.send({
       status: 'success',
       message: 'File uploaded successfully!',
-      file: req.file, // Returns file info like file name, path, etc.
+      file: req.file,
     });
   } catch (error) {
     res.sendStatus(400);
